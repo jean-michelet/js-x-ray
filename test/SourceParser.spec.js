@@ -6,57 +6,44 @@ import assert from "node:assert";
 import { SourceParser } from "../src/SourceParser.js";
 
 describe("SourceParser", () => {
-  describe("constructor", () => {
+  describe("prepareSource", () => {
     it("should throw a TypeError if source is not a string", () => {
       assert.throws(
-        () => new SourceParser(10),
+        () => new SourceParser().prepareSource(10),
         { message: "source must be a string" }
       );
     });
 
-    it("should not update the content of raw", () => {
-      const expectedStr = "hello world";
-
-      assert.strictEqual(
-        new SourceParser(expectedStr).raw,
-        expectedStr
-      );
-
-      assert.strictEqual(
-        new SourceParser(expectedStr, { removeHTMLComments: true }).raw,
-        expectedStr
-      );
-    });
-
     it("should remove shebang at the start of the file", () => {
-      const sp = new SourceParser("#!/usr/bin/env node\nconst hello = \"world\";");
+      const source = "#!/usr/bin/env node\nconst hello = \"world\";";
+      const preparedSource = new SourceParser().prepareSource(source);
 
       assert.strictEqual(
-        sp.source,
+        preparedSource,
         "const hello = \"world\";"
       );
     });
 
     it("should not remove shebang if not at the start (that's an illegal code)", () => {
       const source = "const hello = \"world\";\n#!/usr/bin/env node";
-      const sp = new SourceParser(source);
+      const preparedSource = new SourceParser().prepareSource(source);
 
       assert.strictEqual(
-        sp.source,
+        preparedSource,
         source
       );
     });
 
     it("should remove singleline HTML comment from source code when removeHTMLComments is enabled", () => {
-      const sp = new SourceParser("<!-- const yo = 5; -->", {
+      const preparedSource = new SourceParser().prepareSource("<!-- const yo = 5; -->", {
         removeHTMLComments: true
       });
 
-      assert.strictEqual(sp.source, "");
+      assert.strictEqual(preparedSource, "");
     });
 
     it("should remove multiline HTML comment from source code when removeHTMLComments is enabled", () => {
-      const sp = new SourceParser(`
+      const preparedSource = new SourceParser().prepareSource(`
       <!--
     // == fake comment == //
 
@@ -66,15 +53,16 @@ describe("SourceParser", () => {
         removeHTMLComments: true
       });
 
-      assert.strictEqual(sp.source.trim(), "");
+      assert.strictEqual(preparedSource.trim(), "");
     });
 
     it("should remove multiple HTML comments", () => {
-      const sp = new SourceParser("<!-- const yo = 5; -->\nconst yo = 'foo'\n<!-- const yo = 5; -->", {
-        removeHTMLComments: true
-      });
+      const preparedSource = new SourceParser().prepareSource(
+        "<!-- const yo = 5; -->\nconst yo = 'foo'\n<!-- const yo = 5; -->", {
+          removeHTMLComments: true
+        });
 
-      assert.strictEqual(sp.source, "\nconst yo = 'foo'\n");
+      assert.strictEqual(preparedSource, "\nconst yo = 'foo'\n");
     });
   });
 });

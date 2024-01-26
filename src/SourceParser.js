@@ -4,13 +4,11 @@ export class SourceParser {
    * @param {object} options
    * @param {boolean} [options.removeHTMLComments=false]
    */
-  constructor(source, options = {}) {
+  prepareSource(source, options = {}) {
     if (typeof source !== "string") {
       throw new TypeError("source must be a string");
     }
     const { removeHTMLComments = false } = options;
-
-    this.raw = source;
 
     /**
      * if the file start with a shebang then we remove it because meriyah.parseScript fail to parse it.
@@ -20,7 +18,7 @@ export class SourceParser {
     const rawNoShebang = source.charAt(0) === "#" ?
       source.slice(source.indexOf("\n") + 1) : source;
 
-    this.source = removeHTMLComments ?
+    return removeHTMLComments ?
       this.#removeHTMLComment(rawNoShebang) : rawNoShebang;
   }
 

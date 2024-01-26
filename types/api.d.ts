@@ -1,8 +1,10 @@
+import { ESTree } from "meriyah";
 import { Warning } from "./warnings.js";
 
 export {
   runASTAnalysis,
   runASTAnalysisOnFile,
+  AstAnalyser,
 
   RuntimeOptions,
   RuntimeFileOptions,
@@ -78,3 +80,13 @@ type ReportOnFile = {
 
 declare function runASTAnalysis(str: string, options?: RuntimeOptions): Report;
 declare function runASTAnalysisOnFile(pathToFile: string, options?: RuntimeFileOptions): Promise<ReportOnFile>;
+
+interface Parser {
+  parse(str: string, options: unknown): ESTree.Program;
+}
+
+interface AstAnalyser {
+  constructor(parser: Parser): void;
+  analyse: (str: string, options: unknown) => Report;
+  analyzeFile(pathToFile: string, options?: RuntimeFileOptions): Promise<ReportOnFile>;
+}
