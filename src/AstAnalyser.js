@@ -26,9 +26,8 @@ export class AstAnalyser {
       removeHTMLComments = false
     } = options;
 
-    const { body } = this.parser.parse(str, {
-      isEcmaScriptModule: Boolean(module),
-      removeHTMLComments
+    const { body } = this.parser.parse(this.prepareSource(str, { removeHTMLComments }), {
+      isEcmaScriptModule: Boolean(module)
     });
 
     const source = new SourceFile(str);
@@ -95,5 +94,36 @@ export class AstAnalyser {
         ]
       };
     }
+  }
+
+  /**
+   * @param {!string} source
+   * @param {object} options
+   * @param {boolean} [options.removeHTMLComments=false]
+   */
+  prepareSource(source, options = {}) {
+    if (typeof source !== "string") {
+      throw new TypeError("source must be a string");
+    }
+    const { removeHTMLComments = false } = options;
+
+    /**
+     * if the file start with a shebang then we remove it because meriyah.parseScript fail to parse it.
+     * @example
+     * #!/usr/bin/env node
+     */
+    const rawNoShebang = source.charAt(0) === "#" ?
+      source.slice(source.indexOf("\n") + 1) : source;
+
+    return removeHTMLComments ?
+      this.#removeHTMLComment(rawNoShebang) : rawNoShebang;
+  }
+
+  /**
+   * @param {!string} str
+   * @returns {string}
+   */
+  #removeHTMLComment(str) {
+    return str.replaceAll(/<!--[\s\S]*?(?:-->)/g, "");
   }
 }

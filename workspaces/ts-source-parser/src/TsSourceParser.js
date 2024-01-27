@@ -20,13 +20,13 @@ export class TsSourceParser extends SourceParser {
   /**
    * @param {object} options
    */
-  parseScript(opts = {}) {
+  parse(source, opts = {}) {
     const options = {
       ...tsParsingOptions,
       ...opts
     };
 
-    return ast;
+    return parse(source, options);
   }
 }
 

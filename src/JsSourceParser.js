@@ -1,9 +1,6 @@
 // Import Third-party Dependencies
 import * as meriyah from "meriyah";
 
-// Import Internal Dependencies
-import { SourceParser } from "./SourceParser.js";
-
 // CONSTANTS
 const kParsingOptions = {
   next: true,
@@ -12,18 +9,15 @@ const kParsingOptions = {
   jsx: true
 };
 
-export class JsSourceParser extends SourceParser {
+export class JsSourceParser {
   /**
    * @param {object} options
    * @param {boolean} options.isEcmaScriptModule
    */
-  parse(str, options = {}) {
+  parse(source, options = {}) {
     const {
-      isEcmaScriptModule,
-      removeHTMLComments
+      isEcmaScriptModule
     } = options;
-
-    const source = this.prepareSource(str, { removeHTMLComments });
 
     try {
       return meriyah.parseScript(
